@@ -3,13 +3,13 @@ import os
 
 def process(req):
     global user
-    if request.startswith('GET /connect/'):
+    if request.startswith('GET /connect/'): #обработка запроса на получение информации
         print(users)
         login_data = req.split()[1][9:]
         login = login_data.split('/')[0]
         password = login_data.split('/')[1]
         if login in users.keys() and users[login] == password:
-            with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
                 log.write(login + ' - logged in\n')
                 user = login
         else:
@@ -17,39 +17,39 @@ def process(req):
             return "Authorization failed"
         return 'You have successfully logged in as ' + user
 
-    if req.startswith('GET /register/'):
+    if req.startswith('GET /register/'): #обработка запроса на получение информации
         login = req.split()[1][10:].split('/')[0]
         password = req.split()[1][10:].split('/')[1]
         if login not in users.keys():
             users[login] = password
-            os.mkdir('/home/anna-beng/PycharmProjects/FTP/workspace/' + login)
-            with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            os.mkdir('/home/popov/PycharmProjects/FTP/workspace/' + login)
+            with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
                 log.write(login + ' - register\n')
             return 'You have registered successfully'
         else:
             return 'Such user exists'
 
-    if not user:
+    if not user: #проверка авторизации
         return 'Authorization needed'
-    homedir = '/home/anna-beng/PycharmProjects/FTP/workspace/' + user + '/'
+    homedir = '/home/popov/PycharmProjects/FTP/workspace/' + user + '/'
 
-    if req.startswith('GET /pwd/'):
-        with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+    if req.startswith('GET /pwd/'): #обработка запроса на получение информации
+        with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
             log.write(user + ' - pwd\n')
         return str('workspace/'+user)
-    elif req.startswith('GET /ls/'):
+    elif req.startswith('GET /ls/'): #обработка запроса 
         folder_name = req.split()[1][4:]
-        with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+        with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
             log.write(user + ' - ls\n')
         if folder_name:
             return ', '.join(os.listdir(homedir+folder_name))
         else:
             return ', '.join(os.listdir(homedir))
-    elif req.startswith('GET /mkdir/'):
+    elif req.startswith('GET /mkdir/'): #обработка запроса
         folder_name = req.split()[1][7:]
         try:
             os.mkdir(homedir + folder_name)
-            with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log: #запись в лог файл
                 log.write(user + ' - mkdir '+folder_name+'\n')
             return 'Folder created: ' + homedir + folder_name
         except OSError:
@@ -58,53 +58,53 @@ def process(req):
         folder_name = req.split()[1][7:]
         try:
             response = rmdir(homedir + folder_name)
-            if response != 'error':
-                with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            if response != 'error':#обработка ошибки
+                with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
                     log.write(user + ' - rmdir ' + folder_name+'\n')
             return response
         except OSError:
             return 'Error'
-    elif req.startswith('GET /rmfile/'):
+    elif req.startswith('GET /rmfile/'): #обработка запроса
         file_name = req.split()[1][8:]
         try:
             os.remove(homedir + file_name)
-            with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log: #запись в лог файл
                 log.write(user + ' - rmfile ' + file_name+'\n')
             return 'File deleted'
         except OSError as e:
             print(e)
             return 'Error'
-    elif req.startswith('GET /rename/'):
+    elif req.startswith('GET /rename/'): #обработка запроса 
         data = req.split()[1][8:]
         old = data.split('//')[0]
         new = data.split('//')[1]
         try:
             os.rename(homedir + old, homedir + new)
-            with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log: #запись в лог файл
                 log.write(user + ' - rename ' + new+'\n')
             return 'File renamed'
         except OSError as e:
             print(e)
             return 'Error'
-    elif req.startswith('GET /toclient/'):
+    elif req.startswith('GET /toclient/'):#обработка запроса 
         data = req.split()[1][10:]
         try:
-            with open(homedir+data, 'r') as file:
-                    with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+            with open(homedir+data, 'r') as file: #запись в лог файл
+                    with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
                         log.write(user + ' - copied from server ' + data+'\n')
                     return file.read()
         except OSError as e:
             print(e)
             return 'Error'
-    elif req.startswith('GET /disconnect/'):
-        with open('/home/anna-beng/PycharmProjects/FTP/log.txt', 'a+') as log:
+    elif req.startswith('GET /disconnect/'): #обработка запроса 
+        with open('/home/popov/PycharmProjects/FTP/log.txt', 'a+') as log:
             log.write(user + ' - disconnect\n')
         return 'Close connection'
     else:
         return 'Bad request'
 
 
-def rmdir(path):
+def rmdir(path): #код команды rmdir
     if not os.listdir(path):
         try:
             os.rmdir(path)
@@ -121,7 +121,7 @@ def rmdir(path):
             return 'Error'
 
 
-
+#развертывание сервера
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8000
 
@@ -133,7 +133,7 @@ print('Listening on port %s...' % SERVER_PORT)
 user = None
 users = {'Admin':'qwerty', 'UserOne':'12345'}
 
-while True:
+while True: #запуск сервера
     content = ''
     conn, addr = server_socket.accept()
     request = conn.recv(8192).decode()
